@@ -28,7 +28,7 @@ def main():
         opts = build_options(file=args.options)
     else:
         opts = build_options()
-    c = Cleaner(config=opts, debug=args.debug, executable="kube-linter lint")
+    c = cleaner(config=opts, debug=args.debug, executable="kube-linter lint")
     if args.debug: print(f"SamplingParams set: {c.params}")
     prompts = c.generate_prompts(target_dir=args.target)
     try:
