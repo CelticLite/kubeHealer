@@ -26,7 +26,6 @@ class cleaner:
             if self.debug: print(f"Eating {file}")
             if os.path.isdir(f"{target_dir}/{file}"):
                 continue # only read files in current directory 
-            file_contents = read_file(f"{target_dir}/{file}")
             try:
                 with open(path, 'r') as f:
                     file_contents = f.read()

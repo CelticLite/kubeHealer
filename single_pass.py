@@ -6,9 +6,9 @@ from cleaner import cleaner
 def process_args():
     parser = argparse.ArgumentParser(description ='Fix errors found by a linter')
     parser.add_argument('-t','--target', help ='target directory containing dirty yaml', default=None)
-    parser.add_argument('-o','--options', help ='json options file', default=None)
+    parser.add_argument('-c','--config', help ='json options file', default=None)
     parser.add_argument('--debug', help ='run in debug mode', action="store_true")
-    parser.add_argument('-c','--clean', help ='output directory containing cleaned yaml', default=None)
+    parser.add_argument('-o','--output', help ='output directory containing cleaned yaml', default=None)
     return parser.parse_args()
 
 def build_options(file=None):
@@ -24,8 +24,8 @@ def main():
     right = 0 
 
     args = process_args()
-    if args.options:
-        opts = build_options(file=args.options)
+    if args.config:
+        opts = build_options(file=args.config)
     else:
         opts = build_options()
     c = cleaner.cleaner(config=opts, debug=args.debug, executable="kube-linter lint")
@@ -40,10 +40,10 @@ def main():
         print(e)
         outputs = []
         pass
-    if not args.clean:
+    if not args.output:
         clean_dir = input("output directory to write new yaml to: ").strip()
     else:
-        clean_dir = args.clean
+        clean_dir = args.output
     for i, output in enumerate(outputs):
         prompt = output.prompt
         res = ""
