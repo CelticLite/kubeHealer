@@ -4,7 +4,7 @@ import subprocess
 from vllm import LLM, SamplingParams
 
 
-class Cleaner:
+class cleaner:
     def __init__(self, config: dict={}, debug=None, executable='echo'):
         self.llm = None
         self.params = None

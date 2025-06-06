@@ -1,7 +1,7 @@
 import argparse
 import json
 
-from cleaner import Cleaner
+from cleaner import cleaner
 
 def process_args():
     parser = argparse.ArgumentParser(description ='Fix errors found by a linter')
@@ -22,7 +22,7 @@ def main():
     wrong = 0
     right = 0 
 
-    args = parse_args()
+    args = process_args()
     if args.options:
         opts = build_options(file=args.options)
     else:
