@@ -1,6 +1,8 @@
 import argparse
 import json
 
+from cleaner import Cleaner
+
 def process_args():
     parser = argparse.ArgumentParser(description ='Fix errors found by a linter')
     parser.add_argument('-t','--target', help ='target directory containing dirty yaml', default=None)
@@ -58,7 +60,7 @@ def main():
         if still_wrong:
             print(f'File: {prompts[i].get("filename","something")} still has errors')
             wrong += 1
-        else
+        else:
             right += 1
     print(f"Guessed {right} correct fixes!")
     print(f"Missed {wrong} corrections.")
