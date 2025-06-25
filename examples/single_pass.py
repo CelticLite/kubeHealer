@@ -28,7 +28,7 @@ def main():
         opts = build_options(file=args.config)
     else:
         opts = build_options()
-    c = cleaner.cleaner(config=opts, debug=args.debug, executable="kube-linter lint", base_case="", system_prompt="You are an expert Kubernetes configuration optimizer. Your task is to ingest a Kubernetes YAML configuration file along with feedback on issues found in the file. Based on the feedback, you must generate a corrected Kubernetes configuration file in proper YAML format.")
+    c = cleaner.cleaner(config=opts, debug=args.debug, executable="kube-linter lint", system_prompt="You are an expert Kubernetes configuration optimizer. Your task is to ingest a Kubernetes YAML configuration file along with feedback on issues found in the file. Based on the feedback, you must generate a corrected Kubernetes configuration file in proper YAML format.", base_case="No lint errors found")
     if args.debug: print(f"SamplingParams set: {c.params}")
     prompts = c.generate_prompts(target_dir=args.target)
     if not args.output:

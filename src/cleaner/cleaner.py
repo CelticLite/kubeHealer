@@ -30,7 +30,7 @@ class cleaner:
             except Exception as e:
                 continue
             if not file_contents or file_contents == '':
-            	continue
+                continue
             if self.debug: print(file_contents)
             feedback = generate_feedback(f"{target_dir}/{file}")
             if self.debug: print(feedback)
@@ -53,15 +53,15 @@ class cleaner:
         return ans
 
     def generate(prompts, save: bool=False, clean_dir: str="/tmp"):
-    	llm_batched_input = [p.get("prompt",None) for p in prompts]
-    	outputs = self.llm.generate(llm_batched_input, sampling_params=self.params)
-    	str_outputs = []
-    	for i, output in enumerate(outputs):
-        	res = ""
-        	for o in output.outputs:
-            	res += o.text
+        llm_batched_input = [p.get("prompt",None) for p in prompts]
+        outputs = self.llm.generate(llm_batched_input, sampling_params=self.params)
+        str_outputs = []
+        for i, output in enumerate(outputs):
+            res = ""
+            for o in output.outputs:
+                res += o.text
             str_outputs.append(res)
-    		if save:
-    			with open(f'{clean_dir}/{prompts[i].get("filename","something")}', 'w') as f:
-            		f.write(res)
-    	return str_outputs
+        if save:
+            with open(f'{clean_dir}/{prompts[i].get("filename","something")}', 'w') as f:
+                f.write(res)
+        return str_outputs
