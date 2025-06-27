@@ -5,7 +5,7 @@ from vllm import LLM, SamplingParams
 
 
 class cleaner:
-    def __init__(self, config: dict={}, debug=None, executable='echo', system_prompt: str="Tell a funny joke based on the following file and feedback.", base_case: str="Th!sHappensToBeMyPassw0rd"):
+    def __init__(self, config: dict={}, debug=None, executable='echo', system_prompt="Tell a funny joke based on the following file and feedback.", base_case="Th!sHappensToBeMyPassw0rd"):
         self.config = config
         self.llm = LLM(model=self.config.get('data',{}).get('model',"meta-llama/Llama-3.2-3B-Instruct"), dtype=self.config.get('data',{}).get('dtype',"float16"), tensor_parallel_size=self.config.get('data',{}).get('tensor_parallel_size',4))
         self.params = SamplingParams(temperature=self.config.get('data',{}).get('temperature',0.7), top_p=self.config.get('data',{}).get('top_p',0.9), max_tokens=self.config.get('data',{}).get('max_tokens',2048))
