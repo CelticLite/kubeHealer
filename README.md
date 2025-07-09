@@ -39,6 +39,8 @@ prompts = c.generate_prompts(target_dir=args.target)
 ```
 Each prompt is a dictionary containing the file name, system/user prompts, and any relevant feedback.
 
+Additional examples can be found in the `examples` folder
+
 **Requirements**
 
 * Python 3.8+
@@ -48,6 +50,4 @@ Each prompt is a dictionary containing the file name, system/user prompts, and a
 
 **Contributing**
 
-Feel free to contribute to this project by opening issues or pull requests. We welcome any suggestions for improvements, bug fixes, or new features!
-
-**License**
+Feel free to contribute to this project by opening issues or pull requests. I welcome any suggestions for improvements, bug fixes, or new features!
