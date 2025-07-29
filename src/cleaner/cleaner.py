@@ -1,14 +1,29 @@
 import os
 import subprocess
 import json
+import gc
+import torch
 
-from vllm import LLM, SamplingParams
+from typing import List, Optional, Tuple
+
+from vllm import LLM, SamplingParams, EngineArgs, LLMEngine, RequestOutput
+from vllm.lora.request import LoRARequest
+
+
+
+from huggingface_hub import snapshot_download
+
+
 
 
 class cleaner:
     def __init__(self, config: dict={}, debug=None, executable='echo', system_prompt="Tell a funny joke based on the following file and feedback.", base_case="Th!sHappensToBeMyPassw0rd"):
         self.config = config
-        self.llm = LLM(model=self.config.get('data',{}).get('model',"meta-llama/Llama-3.2-3B-Instruct"), dtype=self.config.get('data',{}).get('dtype',"float16"), tensor_parallel_size=self.config.get('data',{}).get('tensor_parallel_size',4))
+        self.lora_repo = config.get('data', {}).get('lora_repo','jashing/tinyllama-colorist-lora')
+        if config.get('data',{}).get('lora_repo',False):
+            self.llm = LLM(model=self.config.get('data',{}).get('model',"meta-llama/Llama-3.2-3B-Instruct"), dtype=self.config.get('data',{}).get('dtype',"float16"), tensor_parallel_size=self.config.get('data',{}).get('tensor_parallel_size',4), enable_lora=True)
+        else:
+            self.llm = LLM(model=self.config.get('data',{}).get('model',"meta-llama/Llama-3.2-3B-Instruct"), dtype=self.config.get('data',{}).get('dtype',"float16"), tensor_parallel_size=self.config.get('data',{}).get('tensor_parallel_size',4))
         self.params = SamplingParams(temperature=self.config.get('data',{}).get('temperature',0.7), top_p=self.config.get('data',{}).get('top_p',0.9), max_tokens=self.config.get('data',{}).get('max_tokens',2048))
         self.debug = debug
         self.executable = executable
@@ -16,6 +31,26 @@ class cleaner:
         self.base_case = base_case
         self.prompts = []
         pass
+
+    def initialize_engine(self, model: str, quantization: str,
+                      lora_repo: Optional[str]) -> LLMEngine:
+        """Initialize the LLMEngine."""
+
+        if quantization == "bitsandbytes":
+            engine_args = EngineArgs(model=model,
+                                     quantization=quantization,
+                                     qlora_adapter_name_or_path=lora_repo,
+                                     load_format="bitsandbytes",
+                                     enable_lora=True,
+                                     max_lora_rank=8,
+                                     cpu_offload_gb=5,
+                                     max_model_len=12999)
+        else:
+            engine_args = EngineArgs(model=model,
+                                     quantization=quantization,
+                                     enable_lora=True,
+                                     max_loras=4)
+        return LLMEngine.from_engine_args(engine_args)
 
     # returns strings to be used as prompts in LLM call functions each labeled with the filename of the 
     def generate_prompts(self, target_dir: str=None, max_tokens: int=131072):
@@ -69,18 +104,28 @@ class cleaner:
         self.prompts = data
         return data
 
-    def generate(self, save: bool=False, clean_dir: str="/tmp"):
+    def generate(self, save_files: bool=False, clean_dir: str="/tmp"):
         print("starting generate")
         llm_batched_input = [p.get("prompt",None)[:2048] for p in self.prompts]
         print(f"Inputs to LLM: {len(llm_batched_input)}")
-        outputs = self.llm.generate(llm_batched_input, sampling_params=self.params)
+        if self.config.get('data',{}).get('lora_repo',False):
+            outputs = self.llm.generate(llm_batched_input, sampling_params=self.params, lora_request=LoRARequest("lora-test", 1, self.lora_repo))
+        else:
+            outputs = self.llm.generate(llm_batched_input, sampling_params=self.params)
         str_outputs = []
         for i, output in enumerate(outputs):
             res = ""
             for o in output.outputs:
                 res += o.text
+            # # THE FOLLOWING SHOULD BE ADDED IN PRODUCTION ENV TO REDUCE FORMATTING ERRORS
+            # if '```yaml' in res:
+            #     res = res.split('```yaml',1)[-1]
+            #     res = res.split('```',1)[0]
+            # if '---' in res:
+            #     res = res.split('---',1)[-1]
+            #     res = res.split('---',1)[0]
             str_outputs.append(res)
-        if save:
-            with open(f'{clean_dir}/{self.prompts[i].get("filename","something")}', 'w') as f:
-                f.write(res)
+            if save_files:
+                with open(f'{clean_dir}/{self.prompts[i].get("filename","something")}', 'w') as f:
+                    f.write(res)
         return str_outputs

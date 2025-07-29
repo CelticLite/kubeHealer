@@ -16,7 +16,7 @@ def build_options(file=None):
         with open(file, 'r') as f:
             opts = json.load(f)
     else:
-        opts = {'version' : '1', 'data' : {'model' : 'meta-llama/Llama-3.2-3B-Instruct', 'dtype': 'float16', 'tensor_parallel_size': 4}}
+        opts = {'version' : '1', 'data' : {'model' : 'meta-llama/Llama-3.2-3B-Instruct', 'dtype': 'float16', 'tensor_parallel_size': 4, 'lora_repo': '/home/rpc/school/kubeTrainer/lora_model_long_train'}}
     return opts
 
 def save_to_file(d, filename):
